@@ -7,27 +7,26 @@
 
 static int my_init(void);
 static void my_exit(void);
-
+static volatile unsigned int *led_state;
 static const struct of_device_id simple_driver_dt_ids[] = {
 	{.compatible = "uwr,led-driver"},
     {}
 };
 
-
 static int simple_driver_probe (struct platform_device *pdev)
 {   
-	printk(KERN_ERR"LED turned on\n");
-	int *ptr = platform_get_resource(pdev, IORESOURCE_MEM, 0)->start;
-	*ptr = 1;
-    return 0;
+    struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+    led_state = devm_ioremap(&pdev->dev, res->start, res->end - res->start);
+    printk(KERN_ERR"XD LED turned on\n");
+    writel(1,led_state);
+	return 0;
 }
 
 static int simple_driver_remove (struct platform_device *pdev)
 {
     printk(KERN_ERR"LED turned off\n");
-	int *ptr = platform_get_resource(pdev, IORESOURCE_MEM, 0)->start;
-	*ptr = 0;
-    return 0;
+    writel(0, led_state);
+	return 0;
 }
 
 static struct platform_driver simple_driver = {
@@ -42,7 +41,7 @@ static struct platform_driver simple_driver = {
 static int __init my_init()
 {
     printk(KERN_ERR"Driver registered\n");
-    return platform_driver_register(&simple_driver);
+ return platform_driver_register(&simple_driver);
 }
 
 static void __exit my_exit()
