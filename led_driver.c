@@ -16,8 +16,8 @@ static const struct of_device_id simple_driver_dt_ids[] = {
 static int simple_driver_probe (struct platform_device *pdev)
 {   
     struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-    led_state = devm_ioremap(&pdev->dev, res->start, res->end - res->start);
-    printk(KERN_ERR"XD LED turned on\n");
+    led_state = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+    printk(KERN_ERR"LED turned on\n");
     writel(1,led_state);
 	return 0;
 }
