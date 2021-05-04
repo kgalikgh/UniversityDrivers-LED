@@ -16,7 +16,17 @@ static const struct of_device_id simple_driver_dt_ids[] = {
 static int simple_driver_probe (struct platform_device *pdev)
 {   
     struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if(!res)
+	{
+		printk(KERN_ERR"Could not get the resource.\n");
+		return -ENOMEM;
+	}
     led_state = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+	if(!led_state)
+	{
+		printk(KERN_ERR"Could not map the memmory\n");
+		return -ENOMEM;
+	}
     printk(KERN_ERR"LED turned on\n");
     writel(1,led_state);
 	return 0;
